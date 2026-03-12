@@ -679,11 +679,5 @@ By combining:
 
 we can efficiently generate visual summaries across multiple participants and variables.
 
-This approach allows researchers to quickly explore large datasets and identify meaningful patterns.
+This approach allows to quickly explore large datasets and identify meaningful patterns.
 
----
-
-
-```
-
-This will generate an **HTML document containing explanations, code examples, and images**.
