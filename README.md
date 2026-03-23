@@ -1,114 +1,56 @@
 # Build Plots with Python
 Visualization is a core component of a robust analytical workflow and should be used throughout the data process to:
-
-→ verify structure and detect inconsistencies
-→ understand distributions and temporal dynamics
-→ assess assumptions and guide model selection
+- verify structure and detect inconsistencies
+- understand distributions and temporal dynamics
+- assess assumptions and guide model selection
 
 **Skipping visualization can lead to:**
-→ undetected data quality issues
-→ incorrect variable interpretation
-→ inappropriate modeling strategies
+- undetected data quality issues
+- incorrect variable interpretation
+- inappropriate modeling strategies
 
 **The objective of this document is to demonstrate how Python can be used to:**
-→ build plots from structured datasets (pandas)
-→ handle longitudinal and categorical data
-→ produce clear scientific visualizations
-→ scale plotting through automation
+- build plots from structured datasets (pandas)
+- handle longitudinal and categorical data
+- produce clear scientific visualizations
+- scale plotting through automation
 
 **The 3 Fundamental Before Plotting**
 Before writing any plotting code, clarify:
-→ Variable type - numeric vs categorical
-→ Time structure - longitudinal vs cross-sectional
-→ Objective - distribution, evolution, composition, relationship
+- Variable type (numeric vs categorical)
+- Time structure (longitudinal vs cross-sectional)
+- Objective (distribution, evolution, composition, relationship)
 
-**Practical Rule**
-variable type + time + objective → plot choice
 
 ---
 
 ## Map of Plot Types
-Different analytical objectives require different types of visualizations.
+Different analytical objectives require different types of visualizations and choosing the right type is essential before coding.
 
-→ Evolution over Time (Longitudinal Data) - Used when analyzing repeated measurements over time.
+- Evolution over Time (Longitudinal Data)
 line plot, multiple trajectories, mean trend
+Used when analyzing repeated measurements over time.
+
 ![](images/1.png)
 
-→ Distribution of a Variable - Used to understand variability and distribution.
-histogram, boxplot, violin plot
+- Distribution of a Variable (histogram, boxplot, violin plot)
+Used to understand variability and distribution.
+
 ![](images/2.png)
 
-→ Categorical Composition - Used to show proportions of categories.
-stacked bar chart, proportion plots
+- Categorical Composition (stacked bar chart, proportion plots)
+Used to show proportions of categories.
+
 ![](images/3.png)
 
-→ Relationship Between Variables - Used to explore associations between variables.
-scatter plot, heatmap, density plots
+- Relationship Between Variables (scatter plot, heatmap, density plots)
+Used to explore associations between variables.
+
 ![](images/4.png)
 
+--- 
 
-
-# Types of Graphs Generated in this Pipeline
-
-The analysis pipeline generates three main types of figures.
-
-## 1. Individual Trajectories Plot
-
-This plot shows how a variable evolves over time for different participants.
-
-Each thin line represents a participant and the thicker line represents the mean trend.
-
-![](images/trajectories_example.png)
-
-These plots are commonly used in:
-
-- epidemiology  
-- clinical monitoring  
-- behavioral research  
-- wearable data studies  
-
-They allow researchers to observe both **individual variability** and **population trends**.
-
----
-
-## 2. Stacked Categorical Proportion Plot
-
-This plot shows the proportion of categorical states across time.
-
-![](images/categorical_stacked_example.png)
-
-Each bar represents a day and each color represents a state.
-
-Typical examples include:
-
-- activity states  
-- sleep stages  
-- behavioral categories  
-
-All bars sum to **100% of the observations for that day**.
-
----
-
-## 3. Sleep Density Heatmap
-
-This visualization shows the relationship between:
-
-- sleep onset time  
-- sleep duration  
-
-![](images/sleep_heatmap_example.png)
-
-The color intensity indicates where observations are more concentrated.
-
-Such visualizations are common in:
-
-- sleep science  
-- chronobiology  
-- digital health research  
-
----
-
-# Python Libraries for Plotting
+## Python Libraries for Plotting
 
 Several libraries can be used to create visualizations in Python.
 
