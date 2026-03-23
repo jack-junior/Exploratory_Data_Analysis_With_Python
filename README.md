@@ -73,8 +73,50 @@ Advantages of Matplotlib:
 
 ---
 
-# Building a Plot for One Participant
+# Line plot
+Multiple Trajectories + Mean Trend
 
+```r
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load data
+df = pd.read_excel("steps_data.xlsx")
+
+# Create figure
+plt.figure(figsize=(12,7))
+
+# Plot individual trajectories
+for pid, g in df.groupby("PID"):
+    
+    plt.plot(
+        g["day_index"],
+        g["steps"],
+        alpha=0.2
+    )
+
+# Compute mean trend
+mean_trend = df.groupby("day_index")["steps"].mean()
+
+# Plot mean trend
+plt.plot(
+    mean_trend.index,
+    mean_trend.values,
+    linewidth=3,
+    label="Mean"
+)
+
+# Labels and formatting
+plt.xlabel("Day")
+plt.ylabel("Steps")
+plt.title("Daily Steps — Individual Trajectories + Mean")
+plt.legend()
+
+plt.show()
+
+```
+
+## Building a Plot for One Participant
 Before automating plot generation, it is important to understand how to build a simple graph.
 
 We start with **a single participant**.
@@ -101,10 +143,10 @@ This command loads the dataset into a **DataFrame**, which is the main table str
 
 Example structure:
 
-| PID | date | steps |
+| PID | day_index | steps |
 |-----|------|------|
-| P01 | 2024-01-01 | 5200 |
-| P01 | 2024-01-02 | 6100 |
+| P01 | 1 | 5200 |
+| P01 | 2 | 6100 |
 
 ---
 
@@ -115,74 +157,70 @@ participant_data = df[df["PID"] == "P01"]
 ```
 
 This filters the dataset to keep only observations belonging to **participant P01**.
-
-This helps us understand plotting logic before scaling to multiple participants.
-
 ---
 
-# Create the Plot
-
+# Create the Plot 
+1. creates an empty plotting canvas
 ```r
 plt.figure(figsize=(10,6))
+# The parameter figsize defines the size of the figure.
 ```
-
-This creates an empty plotting canvas.
-
-The parameter `figsize` defines the size of the figure.
-
----
-
-# Draw the Trajectory
-
+2. Draw the Trajectory
 ```r
 plt.plot(
-    participant_data["day_index"],
-    participant_data["steps"]
+    participant_data["day_index"], # x-axis
+    participant_data["steps"]  # y-axis
 )
 ```
-
-Explanation:
-
-- the **x-axis** represents time (day index)  
-- the **y-axis** represents the variable of interest (steps)  
-
-This produces the trajectory of the participant across time.
-
----
-
-# Customize the Plot
-
+3. Customize the Plot
 ```r
-plt.title("Daily Steps for Participant P01")
-plt.xlabel("Day since first record")
+plt.xlabel("Day")
 plt.ylabel("Steps")
+plt.title("Daily Steps — P01")
+plt.show()
 plt.grid(True)
 ```
-
-These commands add:
-
-- a **title**  
-- **axis labels**  
-- a **grid** to improve readability  
-
----
-
-# Save the Plot
-
+4. Save the Plot
 ```r
-plt.savefig("single_participant_plot.png", dpi=300)
+plt.savefig("single_participant_plot.png")
 ```
-
-This saves the plot with high resolution.
-
-The parameter `dpi=300` ensures **publication-quality resolution**.
-
----
 
 # Extending the Plot to Multiple Participants
 
 Once we understand how a single trajectory is plotted, we can extend the graph to multiple participants.
 
+Example: Let's suppose the dataset looks like this:
+
+| PID | day_index | steps |
+|-----|----------|------|
+| P01 | 1 | 5200 |
+| P01 | 2 | 6100 |
+| P02 | 1 | 4300 |
+| P02 | 2 | 5000 |
+
+1. splits the dataset into smaller subsets based on the participant identifier (`PID`). Each subset corresponds to the data of one participant.
+
+```r
+df = pd.read_excel("steps_data.xlsx")
+df.groupby("PID")
+```
+
+```r
+pid = "P01"
+g =
+PID  day_index  steps
+P01      1      5200
+P01      2      6100
+```
+
+```r
+pid = "P02"
+g =
+PID  day_index  steps
+P02      1      4300
+P02      2      5000
+```
+2. Iteration and plotting 
 ```r
 plt.figure(figsize=(12,7))
 
@@ -194,77 +232,10 @@ for pid, g in df.groupby("PID"):
         alpha=0.2
     )
 ```
-
-The function `groupby("PID")` splits the dataset into smaller subsets based on the participant identifier (`PID`). Each subset corresponds to the data of one participant.
-
-The loop syntax:
-
-```r
-for pid, g in df.groupby("PID"):
-```
-
-works as follows:
-
-- `pid` is the **participant identifier** (for example `"P01"`, `"P02"`, etc.).
-- `g` is a **temporary DataFrame containing only the rows for that participant**.
-
-In other words, during each iteration of the loop:
-
-- `pid` stores the participant ID
-- `g` stores the subset of the data corresponding to that participant
-
-Example:
-
-If the original dataset looks like this:
-
-| PID | day_index | steps |
-|-----|----------|------|
-| P01 | 1 | 5200 |
-| P01 | 2 | 6100 |
-| P02 | 1 | 4300 |
-| P02 | 2 | 5000 |
-
-then the loop will internally behave like this:
-
-Iteration 1
-
-```r
-pid = "P01"
-g =
-PID  day_index  steps
-P01      1      5200
-P01      2      6100
-```
-
-Iteration 2
-
-```r
-pid = "P02"
-g =
-PID  day_index  steps
-P02      1      4300
-P02      2      5000
-```
-
-The line
-
-```r
-plt.plot(
-    g["day_index"],
-    g["steps"],
-    alpha=0.2
-)
-```
-
-then draws the trajectory of that participant using only the data stored in `g`.
-
 The parameter `alpha=0.2` controls the transparency of the line. Using a low transparency allows many participant trajectories to be displayed simultaneously without making the plot unreadable. 
 This allows many trajectories to be visualized simultaneously.
 
----
-
-# Adding a Mean Trend
-
+3. Adding a Mean Trend
 To better understand the overall population pattern we can compute a mean trajectory.
 
 ```r
@@ -277,20 +248,11 @@ plt.plot(
     label="Mean Trend"
 )
 ```
-
-The purpose of this code is to compute and display the **average trajectory across all participants**.  
-While the individual lines show each participant’s behavior, this line summarizes the **overall population trend**.
-
-### Step 1 — Compute the mean value per day
+**Step 1 — Compute the mean value per day**
 
 ```r
 mean_trend = df.groupby("day_index")["steps"].mean()
 ```
-
-Here we use `groupby("day_index")`.
-
-This groups together **all observations that correspond to the same day index** across participants.
-
 For example, if the dataset looks like this:
 
 | PID | day_index | steps |
@@ -302,8 +264,6 @@ For example, if the dataset looks like this:
 | P02 | 2 | 4900 |
 | P03 | 2 | 6200 |
 
-Grouping by `day_index` allows us to compute the mean number of steps **for each day across all participants**.
-
 Result:
 
 | day_index | mean_steps |
@@ -313,7 +273,7 @@ Result:
 
 The object `mean_trend` is therefore a **Series containing the average value for each day**.
 
-### Step 2 — Plot the mean trajectory
+**Step 2 — Plot the mean trajectory**
 
 ```r
 plt.plot(
@@ -342,6 +302,264 @@ This is useful because:
 - it helps identify overall increases, decreases, or stable behaviors over time
 
 ---
+
+
+# Distribution of a Variable (histogram, boxplot, violin plot)
+Distribution plots are used to understand how a numeric variable is spread.
+
+They help identify:
+- variability
+- skewness
+- outliers
+
+## Histogram
+```r
+plt.figure()
+
+plt.hist(df["steps"], bins=30)
+
+plt.xlabel("Steps")
+plt.ylabel("Frequency")
+plt.title("Distribution of Daily Steps")
+
+plt.show()
+```
+
+**Add normality curve**
+
+```r
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+# Extract variable
+data = df["steps"].dropna()
+
+# Create figure
+plt.figure()
+
+# Histogram (density=True for normalization)
+plt.hist(data, bins=5, density=True, alpha=0.6)
+
+# Generate normal curve
+x = np.linspace(data.min(), data.max(), 100)
+y = norm.pdf(x, mean, std)
+
+# Plot normal curve
+plt.plot(x, y, linewidth=2)
+
+# Labels
+plt.xlabel("Steps")
+plt.ylabel("Density")
+plt.title("Steps Distribution with Normal Curve")
+
+plt.show()
+```
+
+**Automation Across Variables**
+```r
+variables = ["steps", "heart_rate", "sleep_duration"]
+
+for var in variables:
+    
+    plt.figure()
+    
+    plt.hist(df[var].dropna(), bins=30)
+    
+    plt.title(f"Distribution of {var}")
+    plt.xlabel(var)
+    
+    plt.show()
+```
+## Boxplot
+```r
+plt.figure()
+
+plt.boxplot(df["steps"])
+
+plt.ylabel("Steps")
+plt.title("Steps Distribution (Boxplot)")
+
+plt.show()
+```
+
+
+## Violin Plot
+```r
+import seaborn as sns
+
+plt.figure()
+
+sns.violinplot(y=df["steps"])
+
+plt.ylabel("Steps")
+plt.title("Steps Distribution (Violin Plot)")
+
+plt.show()
+```
+
+## Stratified Distribution (by Group)
+
+Example: compare distributions across a grouping variable (e.g., sex, site)
+
+**Boxplot by Group**
+```r
+plt.figure()
+
+df.boxplot(column="steps", by="sex")
+
+plt.title("Steps Distribution by Sex")
+plt.suptitle("")  # remove default title
+plt.xlabel("Sex")
+plt.ylabel("Steps")
+
+plt.show()
+```
+**Violin Plot by Group**
+```r
+import seaborn as sns
+
+plt.figure()
+
+sns.violinplot(x="sex", y="steps", data=df)
+
+plt.xlabel("Sex")
+plt.ylabel("Steps")
+plt.title("Steps Distribution by Sex")
+
+plt.show()
+```
+
+---
+
+# Categorical Plots (Bar & Stacked)
+
+Categorical plots are used to summarize counts or proportions of categories.
+
+## Bar Plot (Counts)
+Used to quickly assess dominant vs rare categories.
+```r
+counts = df["activity"].value_counts()
+
+plt.figure()
+plt.bar(counts.index, counts.values)
+
+plt.xlabel("Activity")
+plt.ylabel("Count")
+plt.title("Activity Distribution")
+
+plt.show()
+```
+**value_counts()** → counts occurrences of each category
+each bar → number of observations in that category
+
+## Bar Plot (Proportions)
+Allows comparisons across datasets/groups of different sizes
+```r
+prop = df["activity"].value_counts(normalize=True)
+
+plt.figure()
+plt.bar(prop.index, prop.values)
+
+plt.xlabel("Activity")
+plt.ylabel("Proportion")
+plt.title("Activity Distribution (%)")
+
+plt.show()
+```
+
+**normalize=True** → converts counts into proportions
+sum of all bars = 1 (or 100%)
+
+## Stacked Plot (Proportions Over Time)
+```r
+prop = (
+    df
+    .groupby(["day_index", "activity"])
+    .size()
+    .groupby(level=0)
+    .apply(lambda x: x / x.sum())
+    .unstack()
+)
+
+prop.plot(kind="bar", stacked=True, figsize=(12,6))
+
+plt.xlabel("Day")
+plt.ylabel("Proportion")
+plt.title("Activity Composition Over Time")
+
+plt.show()
+```
+
+Concept
+
+groupby(["day_index", "activity"]) → count per day and category
+
+.size() → number of observations
+
+second groupby(level=0) → normalize within each day
+
+.unstack() → reshape to wide format (required for plotting)
+
+👉 Each bar = one day
+👉 Each segment = proportion of a category
+
+
+## Stratified Bar Plot
+```r
+ct = pd.crosstab(df["sex"], df["activity"], normalize="index")
+
+ct.plot(kind="bar", stacked=True)
+
+plt.xlabel("Sex")
+plt.ylabel("Proportion")
+plt.title("Activity Distribution by Sex")
+
+plt.show()
+```
+Concept
+
+pd.crosstab() → cross-tabulation between two variables
+
+normalize="index" → proportions computed within each group
+
+👉 Each bar = one group
+👉 Used to compare category distribution across subgroups
+
+
+## Automation Across Variables
+```r
+cat_vars = ["activity", "sleep_stage"]
+
+for var in cat_vars:
+    
+    counts = df[var].value_counts()
+    
+    plt.figure()
+    plt.bar(counts.index, counts.values)
+    
+    plt.title(f"{var} Distribution")
+    
+    plt.show()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Creating a Stacked Categorical Plot
 
