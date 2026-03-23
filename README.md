@@ -1,24 +1,68 @@
 # Build Plots with Python
+Visualization is a core component of a robust analytical workflow and should be used throughout the data process to:
 
-# Introduction
+→ verify structure and detect inconsistencies
+→ understand distributions and temporal dynamics
+→ assess assumptions and guide model selection
 
-This document explains how to build scientific plots in **Python**.
+**Skipping visualization can lead to:**
+
+→ undetected data quality issues
+→ incorrect variable interpretation
+→ inappropriate modeling strategies
+
+This document explains how to build scientific plots in Python.
 
 The objective is to demonstrate how Python can be used to:
 
-- explore longitudinal health data  
-- build clear scientific visualizations  
-- automate the generation of multiple plots  
-
-The examples presented here come from a wearable data analysis pipeline including variables such as:
-
-- daily steps  
-- physiological measurements  
-- sleep patterns  
-
-Throughout this document we progressively move from **simple plotting** to **automated plot generation**.
+→ build plots from structured datasets (pandas)
+→ handle longitudinal and categorical data
+→ produce clear scientific visualizations
+→ scale plotting through automation
 
 ---
+
+**The 3 Fundamental Before Plotting**
+Before writing any plotting code, clarify:
+→ Variable type - numeric vs categorical
+→ Time structure - longitudinal vs cross-sectional
+→ Objective - distribution, evolution, composition, relationship
+
+**Practical Rule**
+variable type + time + objective → plot choice
+---
+
+## Map of Plot Types
+Different analytical objectives require different types of visualizations.
+
+→ Evolution over Time (Longitudinal Data)- Used when analyzing repeated measurements over time.
+
+line plot, multiple trajectories, mean trend
+
+→ Distribution of a Variable - Used to understand variability and distribution.
+
+histogram
+
+boxplot
+
+violin plot
+
+→ Categorical Composition - Used to show proportions of categories.
+
+stacked bar chart
+
+proportion plots
+
+→ Relationship Between Variables - Used to explore associations between variables.
+
+scatter plot
+
+heatmap
+
+density plots
+
+
+`Each plot answers a specific analytical question and choosing the right type is essential before coding.`
 
 # Types of Graphs Generated in this Pipeline
 
