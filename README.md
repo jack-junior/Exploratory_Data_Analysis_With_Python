@@ -491,18 +491,85 @@ plt.title("Activity Composition Over Time")
 plt.show()
 ```
 
-Concept
+Example Dataset (Sleep Data)
 
-groupby(["day_index", "activity"]) → count per day and category
+Each row represents the total time spent in a sleep stage for one participant during one night.
 
-.size() → number of observations
+| PID | night | sleep_stage | minutes |
+| --- | ----- | ----------- | ------- |
+| P01 | 1     | REM         | 90      |
+| P01 | 1     | Light       | 240     |
+| P01 | 1     | Deep        | 70      |
+| P02 | 1     | REM         | 80      |
+| P02 | 1     | Light       | 260     |
+| P02 | 1     | Deep        | 60      |
+| P01 | 2     | REM         | 100     |
+| P01 | 2     | Light       | 220     |
+| P01 | 2     | Deep        | 80      |
+| P02 | 2     | REM         | 90      |
+| P02 | 2     | Light       | 250     |
+| P02 | 2     | Deep        | 70      |
 
-second groupby(level=0) → normalize within each day
+- each participant has multiple nights
+- each night is split into sleep stages
+- total sleep time = sum of minutes per night
 
-.unstack() → reshape to wide format (required for plotting)
+Step 1 — Aggregate at Night Level
+```r
+df.groupby(["night", "sleep_stage"])["minutes"].sum()
+```
 
-👉 Each bar = one day
-👉 Each segment = proportion of a category
+Result:
+
+| night | sleep_stage | minutes |
+| ----- | ----------- | ------- |
+| 1     | REM         | 170     |
+| 1     | Light       | 500     |
+| 1     | Deep        | 130     |
+| 2     | REM         | 190     |
+| 2     | Light       | 470     |
+| 2     | Deep        | 150     |
+
+We sum across participants to get population-level totals per night
+
+Step 2 — Convert to Proportions
+```r
+.groupby(level=0).apply(lambda x: x / x.sum())
+```
+
+Result:
+| night | sleep_stage | proportion |
+| ----- | ----------- | ---------- |
+| 1     | REM         | 0.21       |
+| 1     | Light       | 0.62       |
+| 1     | Deep        | 0.16       |
+| 2     | REM         | 0.24       |
+| 2     | Light       | 0.58       |
+| 2     | Deep        | 0.18       |
+
+Each night now sums to 1 (100%)
+
+Step 3 — Reshape for Plotting
+```r
+.unstack()
+```
+Result:
+| night | REM  | Light | Deep |
+| ----- | ---- | ----- | ---- |
+| 1     | 0.21 | 0.62  | 0.16 |
+| 2     | 0.24 | 0.58  | 0.18 |
+
+
+**Required structure:**
+- rows → nights
+- columns → sleep stages
+- values → proportions
+
+Step 4 — Plot Interpretation
+- Each bar = one night
+- total height = 100%
+- segments = sleep stage composition
+
 
 
 ## Stratified Bar Plot
@@ -517,14 +584,84 @@ plt.title("Activity Distribution by Sex")
 
 plt.show()
 ```
-Concept
+We now want to compare sleep structure between groups, for example:
+- male vs female
+- different study sites
+- age groups
 
-pd.crosstab() → cross-tabulation between two variables
+Example Dataset (with Group Variable)
+| PID | sex | night | sleep_stage | minutes |
+| --- | --- | ----- | ----------- | ------- |
+| P01 | M   | 1     | REM         | 90      |
+| P01 | M   | 1     | Light       | 240     |
+| P01 | M   | 1     | Deep        | 70      |
+| P02 | F   | 1     | REM         | 80      |
+| P02 | F   | 1     | Light       | 260     |
+| P02 | F   | 1     | Deep        | 60      |
+| P03 | M   | 2     | REM         | 100     |
+| P03 | M   | 2     | Light       | 220     |
+| P03 | M   | 2     | Deep        | 80      |
+| P04 | F   | 2     | REM         | 90      |
+| P04 | F   | 2     | Light       | 250     |
+| P04 | F   | 2     | Deep        | 70      |
 
-normalize="index" → proportions computed within each group
+Step 1 — Aggregate by Group and Category
+```r
+df.groupby(["sex", "sleep_stage"])["minutes"].sum()
+```
+Result:
+| sex | sleep_stage | minutes |
+| --- | ----------- | ------- |
+| F   | REM         | 170     |
+| F   | Light       | 510     |
+| F   | Deep        | 130     |
+| M   | REM         | 190     |
+| M   | Light       | 460     |
+| M   | Deep        | 150     |
 
-👉 Each bar = one group
-👉 Used to compare category distribution across subgroups
+Step 2 — Convert to Proportions Within Group
+```r
+.groupby(level=0).apply(lambda x: x / x.sum())
+```
+Result:
+| sex | sleep_stage | proportion |
+| --- | ----------- | ---------- |
+| F   | REM         | 0.21       |
+| F   | Light       | 0.63       |
+| F   | Deep        | 0.16       |
+| M   | REM         | 0.24       |
+| M   | Light       | 0.57       |
+| M   | Deep        | 0.19       |
+
+Step 3 — Reshape for Plotting
+```r
+.unstack()
+```
+Result:
+| sex | REM  | Light | Deep |
+| --- | ---- | ----- | ---- |
+| F   | 0.21 | 0.63  | 0.16 |
+| M   | 0.24 | 0.57  | 0.19 |
+
+Step 4 — Plot
+```r
+ct = (
+    df
+    .groupby(["sex", "sleep_stage"])["minutes"]
+    .sum()
+    .groupby(level=0)
+    .apply(lambda x: x / x.sum())
+    .unstack()
+)
+
+ct.plot(kind="bar", stacked=True)
+
+plt.xlabel("Sex")
+plt.ylabel("Proportion")
+plt.title("Sleep Composition by Sex")
+
+plt.show()
+```
 
 
 ## Automation Across Variables
