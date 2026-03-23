@@ -6,21 +6,15 @@ Visualization is a core component of a robust analytical workflow and should be 
 → assess assumptions and guide model selection
 
 **Skipping visualization can lead to:**
-
 → undetected data quality issues
 → incorrect variable interpretation
 → inappropriate modeling strategies
 
-This document explains how to build scientific plots in Python.
-
-The objective is to demonstrate how Python can be used to:
-
+**The objective of this document is to demonstrate how Python can be used to:**
 → build plots from structured datasets (pandas)
 → handle longitudinal and categorical data
 → produce clear scientific visualizations
 → scale plotting through automation
-
----
 
 **The 3 Fundamental Before Plotting**
 Before writing any plotting code, clarify:
@@ -30,39 +24,29 @@ Before writing any plotting code, clarify:
 
 **Practical Rule**
 variable type + time + objective → plot choice
+
 ---
 
 ## Map of Plot Types
 Different analytical objectives require different types of visualizations.
 
-→ Evolution over Time (Longitudinal Data)- Used when analyzing repeated measurements over time.
-
+→ Evolution over Time (Longitudinal Data) - Used when analyzing repeated measurements over time.
 line plot, multiple trajectories, mean trend
+![](images/1.png)
 
 → Distribution of a Variable - Used to understand variability and distribution.
-
-histogram
-
-boxplot
-
-violin plot
+histogram, boxplot, violin plot
+![](images/2.png)
 
 → Categorical Composition - Used to show proportions of categories.
-
-stacked bar chart
-
-proportion plots
+stacked bar chart, proportion plots
+![](images/3.png)
 
 → Relationship Between Variables - Used to explore associations between variables.
-
-scatter plot
-
-heatmap
-
-density plots
+scatter plot, heatmap, density plots
+![](images/4.png)
 
 
-`Each plot answers a specific analytical question and choosing the right type is essential before coding.`
 
 # Types of Graphs Generated in this Pipeline
 
