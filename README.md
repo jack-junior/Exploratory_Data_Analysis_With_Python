@@ -205,7 +205,7 @@ df = pd.read_excel("steps_data.xlsx")
 df.groupby("PID")
 ```
 
-```r
+```text
 pid = "P01"
 g =
 PID  day_index  steps
@@ -213,7 +213,7 @@ P01      1      5200
 P01      2      6100
 ```
 
-```r
+```text
 pid = "P02"
 g =
 PID  day_index  steps
@@ -681,328 +681,114 @@ for var in cat_vars:
 ```
 
 
+# Relationship Between Variables
 
+These plots are used to explore associations between variables.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Creating a Stacked Categorical Plot
-
-Categorical variables require a different visualization approach compared to numerical variables.
-
-In previous sections, we plotted **continuous measurements** such as steps or heart rate. These variables can be averaged or summed and represented as trajectories.
-
-However, some variables represent **states or categories**, for example:
-
-- activity type (walking, running, cycling)
-- sleep stage (REM, deep sleep, light sleep)
-- posture or behavioral states
-
-Because these variables are **not numeric measurements**, we cannot compute a mean value or a trajectory in the same way. Instead, we are interested in understanding **how the proportion of each category evolves over time**.
-
-A common way to visualize this is with a **stacked bar chart**.
-
-Each bar represents a time unit (for example one day), and the bar is divided into colored segments representing the **proportion of each category**.
-
-For example:
-
-| Day | Walking | Running | Cycling |
-|----|----|----|----|
-| 1 | 60% | 25% | 15% |
-| 2 | 55% | 30% | 15% |
-| 3 | 50% | 35% | 15% |
-
-Each bar will therefore sum to **100% of the observations for that day**.
-
----
-
-## Example Code
-
+Scatter Plot
 ```r
-prop_wide.plot(
-    kind="bar",
-    stacked=True,
-    figsize=(18,9)
+plt.figure()
+
+plt.scatter(
+    df["steps"],
+    df["sleep_duration"],
+    alpha=0.6
 )
+
+plt.xlabel("Steps")
+plt.ylabel("Sleep Duration")
+plt.title("Steps vs Sleep Duration")
+
+plt.grid(True)
+plt.show()
+```
+**Concept**
+each point = one observation
+x → predictor
+y → outcome
+
+**Used to detect:** correlation, trends, outliers
+
+## Scatter Plot with Trend Line
+```r
+import numpy as np
+
+x = df["steps"]
+y = df["sleep_duration"]
+
+coef = np.polyfit(x, y, 1)
+trend = np.poly1d(coef)
+
+plt.figure()
+
+plt.scatter(x, y, alpha=0.6)
+plt.plot(x, trend(x), linewidth=2)
+
+plt.xlabel("Steps")
+plt.ylabel("Sleep Duration")
+plt.title("Steps vs Sleep Duration (Trend)")
+
+plt.grid(True)
+plt.show()
 ```
 
-This command uses the built-in plotting capability of **pandas DataFrames**.
+**Concept**
+- polyfit → linear regression
+- trend line → overall direction
 
-The object `prop_wide` is typically a table where:
+Helps quantify association
 
-- rows represent **time units** (for example `day_index`)
-- columns represent **categories**
-- values represent the **proportion of observations**
-
-Example structure of `prop_wide`:
-
-| day_index | walking | running | cycling |
-|-----------|--------|--------|--------|
-| 1 | 0.60 | 0.25 | 0.15 |
-| 2 | 0.55 | 0.30 | 0.15 |
-| 3 | 0.50 | 0.35 | 0.15 |
-
-Each row sums to **1 (or 100%)**.
-
----
-
-## Explanation of the Parameters
-
-### `kind="bar"`
-
-This parameter tells pandas to create a **bar chart**.
-
-Instead of plotting lines or points, the data will be represented as vertical bars.
-
-Each bar corresponds to a row in the dataset (in this case, a day).
-
----
-
-### `stacked=True`
-
-This parameter tells pandas to **stack the categories on top of each other**.
-
-Without stacking, the bars would appear side-by-side.  
-With stacking, the segments are combined vertically to show the **composition of the total**.
-
-This allows us to see how the **relative contribution of each category changes over time**.
-
----
-
-### `figsize=(18,9)`
-
-This controls the size of the figure in inches.
-
-A larger figure is useful when:
-
-- there are many time points
-- there are many categories
-- we want the labels to remain readable
-
----
-
-## Interpretation
-
-Stacked categorical plots allow us to observe:
-
-- how the **distribution of states changes over time**
-- whether some states become more or less frequent
-- whether patterns emerge in behavioral or physiological states
-
-For example, in a sleep study we might observe:
-
-- an increase in **REM sleep proportion**
-- a decrease in **deep sleep**
-- stable patterns across nights
-
-This type of visualization is therefore very useful in:
-
-- behavioral analysis
-- wearable data research
-- longitudinal categorical data studies
----
-
-# Creating a Sleep Density Heatmap
-
-Sleep patterns can be visualized using **density estimation**, which helps us understand where observations are most concentrated in a two-dimensional space.
-
-In this case, we want to study the relationship between:
-
-- **sleep onset time** (when sleep begins)
-- **sleep duration** (how long the sleep lasts)
-
-Instead of plotting each observation individually, density estimation allows us to visualize **regions where many observations occur together**.
-
-This is particularly useful when analyzing sleep data collected from wearable devices across many nights and many participants.
-
----
-
-## Example Code
-
+## Heatmap (Correlation Matrix)
 ```r
-plt.imshow(
-    Z_masked,
-    origin="lower",
-    aspect="auto",
-    cmap="turbo"
+import seaborn as sns
+
+corr = df[["steps", "heart_rate", "sleep_duration"]].corr()
+
+plt.figure()
+
+sns.heatmap(corr, annot=True)
+
+plt.title("Correlation Matrix")
+
+plt.show()
+```
+Concept
+- correlation matrix → pairwise relationships
+- values range from -1 to +1
+
+Used to quickly assess global relationships
+
+## Density Plot (2D)
+```r
+sns.kdeplot(
+    data=df,
+    x="steps",
+    y="sleep_duration",
+    fill=True
 )
+
+plt.xlabel("Steps")
+plt.ylabel("Sleep Duration")
+plt.title("Density Plot")
+
+plt.show()
 ```
+Concept
+estimates where points are concentrated
+smoother alternative to scatter
 
-This command displays a **2-dimensional density map** using Matplotlib.
 
-The matrix `Z_masked` contains density values that were previously estimated from the data using a method such as **kernel density estimation (KDE)**.
 
-Each cell of this matrix represents the estimated concentration of observations for a given combination of:
 
-- sleep onset time
-- sleep duration
 
----
 
-## Explanation of the Parameters
 
-### `Z_masked`
 
-This is a **2-dimensional matrix of density values**.
 
-Each value corresponds to the estimated probability density at a specific coordinate in the sleep onset × sleep duration space.
 
-Higher values indicate that many sleep episodes occur in that region.
 
-Low values indicate rare observations.
 
----
 
-### `origin="lower"`
 
-This parameter defines how the image is displayed on the vertical axis.
 
-Setting `origin="lower"` ensures that the **lowest values appear at the bottom of the plot**, which matches the standard orientation used in most scientific plots.
-
-Without this option, the image would appear vertically flipped.
-
----
-
-### `aspect="auto"`
-
-This controls the aspect ratio of the plot.
-
-Setting `aspect="auto"` allows Matplotlib to **automatically adjust the scaling of the axes** so that the visualization fits properly within the plotting window.
-
-This is useful when the ranges of the x-axis and y-axis are very different.
-
----
-
-### `cmap="turbo"`
-
-The parameter `cmap` defines the **color map** used to represent density values.
-
-The `"turbo"` colormap is a smooth gradient that transitions from:
-
-- blue (low density)
-- green/yellow (moderate density)
-- red (high density)
-
-This makes it easy to visually identify where sleep patterns are most concentrated.
-
----
-
-## Interpretation of the Heatmap
-
-In this visualization:
-
-- the **x-axis represents sleep onset time**
-- the **y-axis represents sleep duration**
-- the **color intensity represents the concentration of observations**
-
-For example:
-
-- a bright region around **23:00 and 7 hours** suggests that many participants tend to fall asleep around 11 PM and sleep for about 7 hours.
-- darker regions indicate combinations that occur less frequently.
-
----
-
-## Why This Visualization is Useful
-
-A sleep density heatmap allows researchers to quickly identify patterns such as:
-
-- typical sleep onset times
-- common sleep durations
-- variability across nights
-- unusual or rare sleep behaviors
-
-This type of visualization is widely used in:
-
-- sleep science
-- chronobiology
-- digital health studies
-- wearable data analytics
-
-It provides a **compact summary of complex sleep behavior across large datasets**.
-
----
-
-# Automating Plot Generation
-
-Once the plotting process is understood, it can be automated.
-
-Instead of manually plotting each variable, we can loop through multiple files.
-
-```r
-import os
-
-files = os.listdir(data_folder)
-
-for file in files:
-
-    df = pd.read_excel(file)
-
-    process_data(df)
-
-    create_plot(df)
-```
-
-This loop automatically:
-
-1. reads each dataset  
-2. processes the data  
-3. generates the corresponding plot  
-4. saves the output  
-
-Automation allows scaling the workflow to **many variables and many participants**.
-
----
-
-# Automated Pipeline Output
-
-The pipeline automatically generates:
-
-For numeric variables:
-
-```
-Variable_DailyLevel.xlsx
-Variable_Trajectories.png
-```
-
-For categorical variables:
-
-```
-Variable_CategoricalProportions.xlsx
-Variable_DailyStateProportions.png
-```
-
-For sleep analysis:
-
-```
-SleepDuration_FullPeriod_MeanTrend.png
-Sleep_Onset_vs_Duration_Heatmap.png
-```
-
----
-
-# Conclusion
-
-Python provides powerful tools to visualize complex datasets.
-
-By combining:
-
-- **pandas** for data manipulation  
-- **matplotlib** for plotting  
-- **loops** for automation  
-
-we can efficiently generate visual summaries across multiple participants and variables.
-
-This approach allows to quickly explore large datasets and identify meaningful patterns.
 
